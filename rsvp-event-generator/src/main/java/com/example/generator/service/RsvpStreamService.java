@@ -18,14 +18,16 @@ import java.util.concurrent.TimeUnit;
 public class RsvpStreamService {
 
     private final RandomRsvpGeneratorService generatorService;
+    private final com.example.generator.handler.RsvpWebSocketHandler webSocketHandler;
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService executorService;
 
     @Value("${generator.events-per-second:5}")
     private int eventsPerSecond;
 
-    public RsvpStreamService(RandomRsvpGeneratorService generatorService) {
+    public RsvpStreamService(RandomRsvpGeneratorService generatorService, com.example.generator.handler.RsvpWebSocketHandler webSocketHandler) {
         this.generatorService = generatorService;
+        this.webSocketHandler = webSocketHandler;
     }
 
     @PostConstruct
@@ -54,14 +56,20 @@ public class RsvpStreamService {
     }
 
     private void sendEvent() {
+        RsvpEvent event = generatorService.generateRandomEvent();
+        
+        // Broadcast via WebSocket
+        webSocketHandler.broadcastEvent(event);
+
+        // Broadcast via SSE
         if (emitters.isEmpty()) {
             return;
         }
-        RsvpEvent event = generatorService.generateRandomEvent();
+        
         List<SseEmitter> deadEmitters = new java.util.ArrayList<>();
         for (SseEmitter emitter : emitters) {
             try {
-                emitter.send(event);
+                emitter.send(SseEmitter.event().data(event, org.springframework.http.MediaType.APPLICATION_JSON).name("message"));
             } catch (IOException e) {
                 deadEmitters.add(emitter);
             }

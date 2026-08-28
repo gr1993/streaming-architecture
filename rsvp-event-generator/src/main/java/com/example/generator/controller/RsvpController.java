@@ -15,7 +15,7 @@ public class RsvpController {
         this.streamService = streamService;
     }
 
-    @GetMapping(path = "/rsvp", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = "/rsvp", produces = MediaType.TEXT_EVENT_STREAM_VALUE, headers = "!Sec-WebSocket-Key")
     public SseEmitter streamRsvpEvents() {
         return streamService.addEmitter();
     }
