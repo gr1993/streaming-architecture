@@ -64,7 +64,7 @@ final class HybridMessageLogger {
         try {
             final byte[] keyBytes = eventKey.getBytes(StandardCharsets.UTF_8);
             byte[] value = transientStateDB.get(keyBytes);
-            if (value != null) {
+            if (value == null) {
                 transientStateDB.put(keyBytes, eventData);
             }
         } catch (RocksDBException ex) {
