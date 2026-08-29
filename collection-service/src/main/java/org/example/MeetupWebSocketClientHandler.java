@@ -79,7 +79,16 @@ public class MeetupWebSocketClientHandler extends SimpleChannelInboundHandler {
 
         } else if (frame instanceof CloseWebSocketFrame) {
             channel.close();
-            //rsvpProducer.close();
+            rsvpProducer.close();
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        if (!handshakeFuture.isDone()) {
+            handshakeFuture.setFailure(cause);
+        }
+        ctx.close();
     }
 }
