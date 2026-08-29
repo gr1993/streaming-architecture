@@ -15,9 +15,11 @@ public class MeetupWebSocketClientHandler extends SimpleChannelInboundHandler {
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
+    private final RSVPProducer rsvpProducer;
 
-    MeetupWebSocketClientHandler(WebSocketClientHandshaker handshaker) {
+    MeetupWebSocketClientHandler(WebSocketClientHandshaker handshaker, RSVPProducer rsvpProducer) {
         this.handshaker = handshaker;
+        this.rsvpProducer = rsvpProducer;
     }
 
     ChannelFuture handshakeFuture() {
@@ -71,7 +73,7 @@ public class MeetupWebSocketClientHandler extends SimpleChannelInboundHandler {
             textFrame.content().readBytes(messagePayload);
 
             HybridMessageLogger.addEvent(messageKey,messagePayload);
-            //rsvpProducer.sendMessage(messageKey,messagePayload);
+            rsvpProducer.sendMessage(messageKey,messagePayload);
 
             System.out.println("msg : " + new String(messagePayload, StandardCharsets.UTF_8));
 

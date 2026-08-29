@@ -26,6 +26,8 @@ public class Main {
     private static boolean continueRunning = true;
 
     public static void main(String[] args) throws Exception {
+        EventLoopGroup group = new NioEventLoopGroup();
+
         // HML 초기 설정
         try{
             HybridMessageLogger.initialize();
@@ -35,8 +37,26 @@ public class Main {
             System.exit(-1);
         }
 
+        // Kafka Producer 종료 이벤트 훅 구현
+        final RSVPProducer rsvpProducer = new RSVPProducer();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    System.out.println("Shutdown started...");
+                    group.shutdownGracefully();
+                    rsvpProducer.close();
+                    HybridMessageLogger.close();
+                    continueRunning = false;
+                    System.out.println("Shutdown finished");
+                } catch (final Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         // Netty 설정
-        EventLoopGroup group = new NioEventLoopGroup();
         final String URL =  0 < args.length? args[0] : "ws://localhost:8080/rsvp";
         URI uri = new URI(URL);
         try {
@@ -44,7 +64,7 @@ public class Main {
             final MeetupWebSocketClientHandler handler =
                     new MeetupWebSocketClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()));
+                                    uri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()), rsvpProducer);
 
             // 파이프라인 설정
             Bootstrap b = new Bootstrap();
