@@ -37,7 +37,7 @@ public class Main {
             final MeetupWebSocketClientHandler handler =
                     new MeetupWebSocketClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, null, false, new DefaultHttpHeaders()));
+                                    uri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()));
 
             // 파이프라인 설정
             Bootstrap b = new Bootstrap();
