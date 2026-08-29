@@ -70,10 +70,10 @@ public class MeetupWebSocketClientHandler extends SimpleChannelInboundHandler {
             final byte[] messagePayload = new byte[textFrame.content().readableBytes()];
             textFrame.content().readBytes(messagePayload);
 
-            //HybridMessageLogger.addEvent(messageKey,messagePayload);
+            HybridMessageLogger.addEvent(messageKey,messagePayload);
             //rsvpProducer.sendMessage(messageKey,messagePayload);
 
-            System.out.println("read : " + new String(messagePayload, StandardCharsets.UTF_8));
+            System.out.println("msg : " + new String(messagePayload, StandardCharsets.UTF_8));
 
         } else if (frame instanceof CloseWebSocketFrame) {
             channel.close();

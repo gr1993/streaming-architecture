@@ -26,12 +26,19 @@ public class Main {
     private static boolean continueRunning = true;
 
     public static void main(String[] args) throws Exception {
+        // HML 초기 설정
+        try{
+            HybridMessageLogger.initialize();
+        }catch (Exception exception){
+            System.err.println("Could not initialize HybridMessageLogger!");
+            exception.printStackTrace();
+            System.exit(-1);
+        }
+
+        // Netty 설정
         EventLoopGroup group = new NioEventLoopGroup();
-
         final String URL =  0 < args.length? args[0] : "ws://localhost:8080/rsvp";
-
         URI uri = new URI(URL);
-
         try {
             // 우리가 구현한 수집 핸들러 생성
             final MeetupWebSocketClientHandler handler =
