@@ -9,7 +9,19 @@ repositories {
     mavenCentral()
 }
 
+def flinkVersion = '1.18.1'
+
 dependencies {
+    // 2.x 버전대 최신 Flink는 connector와 버전 호환 오류가 발생하여 1.18 버전을 사용
+    // docker로 구성한 Flink 버전과 같아야하며 java 11로 설정
+    implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    implementation "org.apache.flink:flink-clients:${flinkVersion}"
+
+    implementation 'org.apache.flink:flink-connector-kafka:3.0.1-1.18'
+    
+    // 로컬 실행 시 Flink 로그를 콘솔에서 보기 위한 의존성
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

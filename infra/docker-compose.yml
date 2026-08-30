@@ -81,7 +81,7 @@ services:
       - streaming-net
 
   jobmanager:
-    image: flink:2.3.0-scala_2.12
+    image: flink:1.18.1-java11
     hostname: jobmanager
     ports:
       - "8081:8081"
@@ -95,7 +95,7 @@ services:
       - streaming-net
 
   taskmanager:
-    image: flink:2.3.0-scala_2.12
+    image: flink:1.18.1-java11
     hostname: taskmanager
     depends_on:
       - jobmanager
