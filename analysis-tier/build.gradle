@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'org.example'
@@ -24,6 +25,16 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+// ShadowTask 설정
+shadowJar {
+    archiveClassifier.set('all') // 생성될 jar 이름 뒤에 -all 이 붙음 (선택사항)
+
+    // 실행 메인 클래스 지정
+    manifest {
+        attributes 'Main-Class': 'org.example.MeetupAnalysisJob'
+    }
 }
 
 test {
