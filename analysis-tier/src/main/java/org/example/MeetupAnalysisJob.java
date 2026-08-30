@@ -41,6 +41,22 @@ public class MeetupAnalysisJob {
                         "Kafka Source"
                 );
 
+        // RSVP JSON → topic
+        DataStream<String> topics =
+                stream.flatMap(new ExtractTopics());
+
+        // 토픽 별 grouping
+        DataStream<TopicCount> counts =
+                topics
+                        .keyBy(topic -> topic)
+                        .process(new TopicCountProcessFunction());
+
+        // Top N (모든 topic count를 하나의 키로 모아 Top-N 집계)
+        DataStream<String> topN =
+                counts
+                        .keyBy(tc -> "global")
+                        .process(new TopNProcessFunction(10));
+
         KafkaSink<String> sink =
                 KafkaSink.<String>builder()
                         .setBootstrapServers("kafka1:9091")
@@ -54,7 +70,7 @@ public class MeetupAnalysisJob {
                         )
                         .build();
 
-        stream.sinkTo(sink);
+        topN.sinkTo(sink);
 
         // Flink 잡 실행
         env.execute("Meetup Analysis");
