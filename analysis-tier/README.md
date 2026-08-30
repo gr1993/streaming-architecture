@@ -49,7 +49,16 @@ flowchart LR
 
 
 ### 작업 제출
-우선 IDE에서 Job을 실행하는 경우에도 Flink의 미니 클러스터 환경에서 실행되기 때문에 일반적인 애플리케이션처럼 디버깅하기 어렵다는 것을 확인하였다.  
+우선 IDE에서 Job을 실행하는 경우에도 Flink의 MiniCluster 환경에서 실행되기 때문에 일반적인 애플리케이션과 동일한 방식으로 디버깅하기 어렵다는 것을 확인하였다.  
+확인해본 결과, IDE에서 Job을 실행하면 먼저 실행 환경을 생성하고 MiniCluster를 초기화하는 과정이 수행된다. 이 과정은 Flink의 실행 환경이 IDE의 디버깅 환경과 통합되기 전에 수행되기 때문에 해당 초기화 단계에 설정한 중단점은 정상적으로 동작하지 않는 것을 확인하였다.  
+반면 MiniCluster 초기화가 완료되고 Flink Job이 실제로 실행된 이후의 Processing 단계에서는 IDE의 디버깅 중단점이 정상적으로 동작하는 것을 확인할 수 있다.  
+
+```java
+DataStream<String> processedStream = stream.map(value -> {
+    System.out.println("카프카 데이터 수신: " + value); // <=== [여기에 빨간 중단점 설정가능]
+    return value;
+});
+```
 
 코드를 작성한 후 Flink 클러스터에 Job을 제출하기 위해서는 필요한 의존성을 포함한 JAR 파일을 생성해야 한다. 일반적인 `build` 태스크만으로 빌드하면 애플리케이션의 클래스만 포함된 JAR이 생성되고, Flink Job 실행에 필요한 외부 의존성은 포함되지 않기 때문이다.  
 
